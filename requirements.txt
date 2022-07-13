@@ -1,0 +1,10 @@
+Flask
+Requests
+opentelemetry-api==1.12.0rc2
+opentelemetry-sdk==1.12.0rc2
+opentelemetry-exporter-jaeger==1.12.0rc2
+opentelemetry-instrumentation-flask==0.32b0
+opentelemetry-instrumentation-requests==0.32b0
+opentelemetry-instrumentation==0.32b0
+protobuf~=3.20
+opentelemetry.exporter.otlp==1.12.0rc2
