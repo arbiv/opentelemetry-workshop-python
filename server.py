@@ -3,11 +3,35 @@ import requests
 import sys
 import os
 
+from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import (
+    BatchSpanProcessor,
+    ConsoleSpanExporter,
+)
+
+from opentelemetry.instrumentation.flask import FlaskInstrumentor
+
+
+provider = TracerProvider()
+processor = BatchSpanProcessor(ConsoleSpanExporter())
+provider.add_span_processor(processor)
+
+# Sets the global default tracer provider
+trace.set_tracer_provider(provider)
+
+# Creates a tracer from the global tracer provider
+tracer = trace.get_tracer(__name__)
+
+
 app = Flask(__name__)
+FlaskInstrumentor().instrument_app(app)
+
 
 @app.route("/")
 def root():
-  sys.stdout.write('\n')
+  with tracer.start_as_current_span("span-name") as span:
+    sys.stdout.write('\n')
   return "Click [Logs] to see spans!"
 
 @app.route("/fib")
