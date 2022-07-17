@@ -11,6 +11,7 @@ from opentelemetry.sdk.trace.export import (
 )
 
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
+from opentelemetry.instrumentation.requests import RequestsInstrumentor
 
 
 provider = TracerProvider()
@@ -26,7 +27,7 @@ tracer = trace.get_tracer(__name__)
 
 app = Flask(__name__)
 FlaskInstrumentor().instrument_app(app)
-
+RequestsInstrumentor().instrument()
 
 @app.route("/")
 def root():
