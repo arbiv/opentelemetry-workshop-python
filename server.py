@@ -11,6 +11,7 @@ from opentelemetry.sdk.trace.export import (
 
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
 from opentelemetry.sdk.resources import SERVICE_NAME, Resource
+from opentelemetry.instrumentation.requests import RequestsInstrumentor
 
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import (
     OTLPSpanExporter
@@ -30,7 +31,7 @@ tracer = trace.get_tracer(__name__)
 
 app = Flask(__name__)
 FlaskInstrumentor().instrument_app(app)
-
+RequestsInstrumentor().instrument()
 
 @app.route("/")
 def root():
