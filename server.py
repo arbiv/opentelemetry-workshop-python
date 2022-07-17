@@ -7,15 +7,19 @@ from opentelemetry import trace
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import (
     BatchSpanProcessor,
-    ConsoleSpanExporter,
 )
 
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
+from opentelemetry.sdk.resources import SERVICE_NAME, Resource
 from opentelemetry.instrumentation.requests import RequestsInstrumentor
 
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import (
+    OTLPSpanExporter
+)
 
-provider = TracerProvider()
-processor = BatchSpanProcessor(ConsoleSpanExporter())
+provider = TracerProvider(resource=Resource.create({SERVICE_NAME: "yosef-workshop-test"}))
+otlpExporter = OTLPSpanExporter(endpoint="http://colle-loadb-19grjer2k6vx8-58b0be4d87e48569.elb.us-east-1.amazonaws.com:4317")
+processor = BatchSpanProcessor(otlpExporter)
 provider.add_span_processor(processor)
 
 # Sets the global default tracer provider
