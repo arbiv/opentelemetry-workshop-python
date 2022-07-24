@@ -18,7 +18,7 @@ from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import (
 )
 
 provider = TracerProvider(resource=Resource.create({SERVICE_NAME: "yosef-workshop-test"}))
-otlpExporter = OTLPSpanExporter(endpoint="http://colle-loadb-19grjer2k6vx8-58b0be4d87e48569.elb.us-east-1.amazonaws.com:4317")
+otlpExporter = OTLPSpanExporter(endpoint="http://3.210.98.245:4317")
 processor = BatchSpanProcessor(otlpExporter)
 provider.add_span_processor(processor)
 
@@ -43,9 +43,11 @@ def root():
 @app.route("/fibInternal")
 def fibHandler():
   value = int(request.args.get('i'))
+  current_span = trace.get_current_span()
+  current_span.set_attribute("parameter", value)
   
   returnValue = 0
-  if value == 1:
+  if value <= 1:
     returnValue = 0
   elif value == 2:
     returnValue = 1
@@ -53,8 +55,13 @@ def fibHandler():
     minusOnePayload = {'i': value - 1}
     minusTwoPayload = {'i': value - 2 }
     
-    respOne = requests.get('http://127.0.0.1:5000/fibInternal', minusOnePayload)
-    respTwo = requests.get('http://127.0.0.1:5000/fibInternal', minusTwoPayload)
+    with tracer.start_as_current_span("getMinusOne") as span:
+      span.set_attribute("payloadValue", value - 1)
+      respOne = requests.get('http://127.0.0.1:5000/fibInternal', minusOnePayload)
+
+    with tracer.start_as_current_span("getMinusTwo") as span:
+      span.set_attribute("payloadValue", value - 2)
+      respTwo = requests.get('http://127.0.0.1:5000/fibInternal', minusTwoPayload)
     
     returnValue = int(respOne.content) + int(respTwo.content)
     
